@@ -1,6 +1,6 @@
 {
 	"name": "@versecafe/zcli",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "A modern, Zod 4-powered CLI framework",
 	"type": "module",
 	"main": "./dist/index.js",

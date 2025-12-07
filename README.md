@@ -92,18 +92,22 @@ app.run();
 ### Subcommands
 
 ```ts
-const db = command("db")
-  .meta({ description: "Database operations" })
-  .command("migrate")
+const migrate = command("migrate")
   .meta({ description: "Run migrations" })
   .action(() => {
     /* ... */
-  })
-  .command("seed")
+  });
+
+const seed = command("seed")
   .meta({ description: "Seed the database" })
   .action(() => {
     /* ... */
   });
+
+const db = command("db")
+  .meta({ description: "Database operations" })
+  .use(migrate)
+  .use(seed);
 
 // Creates: myapp db migrate, myapp db seed
 ```

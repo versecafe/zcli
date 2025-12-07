@@ -475,6 +475,49 @@ describe("command advanced features", () => {
 			expect(result.stdout).toContain("Deploy");
 			expect(result.stdout).toContain("staging");
 		});
+
+		it("supports 'mycli mcp list' style nested commands", async () => {
+			let listCalled = false;
+			let installCalled = false;
+
+			const list = command("list")
+				.meta({ description: "List available MCPs" })
+				.action(() => {
+					listCalled = true;
+				});
+
+			const install = command("install")
+				.meta({ description: "Install an MCP" })
+				.inputs({
+					name: z.string().meta({ positional: 0, description: "MCP name" }),
+				})
+				.action(() => {
+					installCalled = true;
+				});
+
+			const mcp = command("mcp")
+				.meta({ description: "Manage MCPs" })
+				.use(list)
+				.use(install);
+
+			const mycli = cli("mycli", { version: "1.0.0" }).use(mcp);
+
+			// Test "mycli mcp list"
+			await mycli.run(["mcp", "list"]);
+			expect(listCalled).toBe(true);
+			expect(installCalled).toBe(false);
+
+			// Reset and test "mycli mcp install"
+			listCalled = false;
+			await mycli.run(["mcp", "install", "some-mcp"]);
+			expect(installCalled).toBe(true);
+			expect(listCalled).toBe(false);
+
+			// Test help shows the nested structure
+			const helpResult = await testCli(mycli, ["mcp", "--help"]);
+			expect(helpResult.stdout).toContain("list");
+			expect(helpResult.stdout).toContain("install");
+		});
 	});
 
 	describe("globalInputs inheritance", () => {
